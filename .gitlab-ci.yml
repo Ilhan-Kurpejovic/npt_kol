@@ -1,9 +1,35 @@
+image: docker:dind
+
 stages:
   - build
+  - test
+  - push
+  - deploy
 
-build_job:
+build-job:
   stage: build
   script:
-    - echo "Building Docker image..."
-    - docker build -t flask-books .
-  only: main
+    - docker build -t registry.gitlab.com/predavanja/hello-world1 .
+  only:
+    - master
+    - main
+    - dev
+    - ci_cd
+
+push_images:
+  stage: push
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker push registry.gitlab.com/predavanja/hello-world1:latest
+  only:
+    - master
+    - main
+    - dev
+
+deploy_app:
+  stage: deploy
+  script:
+    - echo "$ENV_FILE_CONTENT" > .env
+    - docker compose up -d
+  only:
+    - main
