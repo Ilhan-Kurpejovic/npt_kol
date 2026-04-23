@@ -1,0 +1,9 @@
+stages:
+  - build
+
+build_job:
+  stage: build
+  script:
+    - echo "Building Docker image..."
+    - docker build -t flask-books .
+  only: main
